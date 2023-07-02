@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import 'package:easy_sidemenu/easy_sidemenu.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 void main() {
@@ -14,7 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'GhaGeni',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -31,7 +34,7 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.pink),
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
@@ -51,6 +54,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   PageController pageController = PageController();
   SideMenuController sideMenu = SideMenuController();
+  SideMenuDisplayMode displayMode = SideMenuDisplayMode.auto;
+  TextEditingController chat = TextEditingController();
 
   @override
   void initState() {
@@ -62,29 +67,82 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    double swidth = MediaQuery.of(context).size.width;
     return Scaffold(
       // appBar: AppBar(
       //   title: Text(widget.title),
       //   centerTitle: true,
       // ),
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(left: swidth<600?10:350, right: 10),
+        child: ClipRRect(
+          //
+          borderRadius:
+          BorderRadius.all(Radius.circular(50.0)), // Clip it cleanly.
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              color: Colors.white.withOpacity(0.7),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: TextField(
+                  style: TextStyle(),
+                  controller: chat,
+                  minLines: 1,
+                  maxLines: 3,
+                  keyboardType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
+                  textInputAction: TextInputAction.newline,
+                  decoration: InputDecoration(
+                    // fillColor: Colors.white,
+                    //   hoverColor: Colors.white,
+                    //   focusColor: Colors.white,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                        borderSide: BorderSide(color: Colors.grey, width: 2),
+                      ),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+
+                        },
+                        icon: const Icon(
+                          Icons.send,
+                          color: Colors.pink,
+                          size: 30,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                        borderSide:
+                        BorderSide(color: Colors.blue.shade100, width: 2),
+                      ),
+                      hintText: 'Type your query...',
+                      hintStyle: TextStyle(color: Colors.grey)),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
       body: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           SideMenu(
             controller: sideMenu,
-            collapseWidth: 900,
             style: SideMenuStyle(
+              compactSideMenuWidth: 66,
+              itemBorderRadius: BorderRadius.circular(50),
               // showTooltip: false,
-              displayMode: SideMenuDisplayMode.auto,
-              hoverColor: Colors.blue[100],
+              displayMode: displayMode,
+              hoverColor: Colors.pinkAccent[100],
               selectedHoverColor: Color.alphaBlend(
                   Color.fromRGBO(
                       Theme.of(context).colorScheme.surfaceTint.red,
                       Theme.of(context).colorScheme.surfaceTint.green,
                       Theme.of(context).colorScheme.surfaceTint.blue,
                       0.08),
-                  Colors.blue[100]!),
-              selectedColor: Colors.lightBlue,
+                  Colors.pinkAccent[100]!),
+              selectedColor: Colors.pink,
               selectedTitleTextStyle: const TextStyle(color: Colors.white),
               selectedIconColor: Colors.white,
               // decoration: BoxDecoration(
@@ -98,7 +156,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   priority: 0,
                   title: 'Bucket List',
                   onTap: (index, _) {
-                    sideMenu.changePage(index);
+                    setState(() {
+                      if(displayMode == SideMenuDisplayMode.auto) {
+                        displayMode = SideMenuDisplayMode.open;
+                      } else {
+                        displayMode = SideMenuDisplayMode.auto;
+                      }
+                    });
                   },
                   icon: Icon(FaIcon(FontAwesomeIcons.bucket).icon),
                   tooltipContent: "Bucket list",
@@ -109,146 +173,81 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ],
             ),
-            footer: const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                'mohada',
-                style: TextStyle(fontSize: 15),
-              ),
+            footer: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ElevatedButton(
+                  onPressed: () {},
+                  child: Text('Logout',
+                      style: TextStyle(color: Colors.white)
+                  ),
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        Colors.pinkAccent[100]!),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(15.0),
+                            topRight: Radius.circular(
+                                15.0)), // Set rounded radius here
+                      ),
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {},
+                  child: Text('Clear Everything',
+                      style: TextStyle(color: Colors.white)
+                  ),
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        Colors.pinkAccent[100]!),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            0.0), // Set rounded radius here
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  height: 50.0,
+                  color: Colors.pinkAccent[100],
+                )
+              ],
             ),
             items: [
-              SideMenuItem(
-                priority: 0,
-                title: 'Dashboard',
-                onTap: (index, _) {
-                  sideMenu.changePage(index);
-                },
-                icon: const Icon(Icons.home),
-                tooltipContent: "This is a tooltip for Dashboard item",
-              ),
-              SideMenuItem(
-                priority: 1,
-                title: 'Users',
-                onTap: (index, _) {
-                  sideMenu.changePage(index);
-                },
-                icon: const Icon(Icons.supervisor_account),
-              ),
-              SideMenuItem(
-                priority: 2,
-                title: 'Files',
-                onTap: (index, _) {
-                  sideMenu.changePage(index);
-                },
-                icon: const Icon(Icons.file_copy_rounded),
-              ),
-              SideMenuItem(
-                priority: 3,
-                title: 'Download',
-                onTap: (index, _) {
-                  sideMenu.changePage(index);
-                },
-                icon: const Icon(Icons.download),
-              ),
-              SideMenuItem(
-                priority: 4,
-                title: 'Settings',
-                onTap: (index, _) {
-                  sideMenu.changePage(index);
-                },
-                icon: const Icon(Icons.settings),
-              ),
-              // SideMenuItem(
-              //   priority: 5,
-              //   onTap:(index, _){
-              //     sideMenu.changePage(index);
-              //   },
-              //   icon: const Icon(Icons.image_rounded),
-              // ),
-              // SideMenuItem(
-              //   priority: 6,
-              //   title: 'Only Title',
-              //   onTap:(index, _){
-              //     sideMenu.changePage(index);
-              //   },
-              // ),
-              const SideMenuItem(
-                priority: 7,
-                title: 'Exit',
-                icon: Icon(Icons.exit_to_app),
-              ),
+              for (int i = 0; i < 10; i++)
+                SideMenuItem(
+                  priority: i + 1,
+                  title: 'Dashboard',
+                  onTap: (index, _) {},
+                  iconWidget: CircleAvatar(
+
+                    backgroundColor: Colors.pinkAccent[100],
+                    child: Text("#${i+1}"),
+                  ),
+                  tooltipContent: "This is a tooltip for Dashboard item",
+                ),
             ],
           ),
           Expanded(
-            child: PageView(
-              controller: pageController,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Container(
-                  color: Colors.white,
-                  child: const Center(
-                    child: Text(
-                      'Dashboard',
-                      style: TextStyle(fontSize: 35),
+                Column(
+                  children: [
+                    Text(
+                      "PageView",
+                      style: Theme.of(context).textTheme.headline4,
                     ),
-                  ),
+                  ],
                 ),
-                Container(
-                  color: Colors.white,
-                  child: const Center(
-                    child: Text(
-                      'Users',
-                      style: TextStyle(fontSize: 35),
-                    ),
-                  ),
-                ),
-                Container(
-                  color: Colors.white,
-                  child: const Center(
-                    child: Text(
-                      'Files',
-                      style: TextStyle(fontSize: 35),
-                    ),
-                  ),
-                ),
-                Container(
-                  color: Colors.white,
-                  child: const Center(
-                    child: Text(
-                      'Download',
-                      style: TextStyle(fontSize: 35),
-                    ),
-                  ),
-                ),
-                Container(
-                  color: Colors.white,
-                  child: const Center(
-                    child: Text(
-                      'Settings',
-                      style: TextStyle(fontSize: 35),
-                    ),
-                  ),
-                ),
-                Container(
-                  color: Colors.white,
-                  child: const Center(
-                    child: Text(
-                      'Only Title',
-                      style: TextStyle(fontSize: 35),
-                    ),
-                  ),
-                ),
-                Container(
-                  color: Colors.white,
-                  child: const Center(
-                    child: Text(
-                      'Only Icon',
-                      style: TextStyle(fontSize: 35),
-                    ),
-                  ),
-                ),
+                Text(""),
               ],
             ),
-          ),
+          )
         ],
       ),
     );
