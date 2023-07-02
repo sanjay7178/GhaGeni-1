@@ -9,7 +9,7 @@ git checkout backups
 git merge main
 
 git add .
-git commit -m "Commit message"
+git commit -m "$current_date_time"
 git push origin backups
 
 git checkout main
